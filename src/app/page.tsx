@@ -1,103 +1,155 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+
+export default function HomePage() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSignup, setIsSignup] = useState(true);
+  const [formData, setFormData] = useState({ email: '', password: '', name: '' });
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  const toggleModal = () => setIsOpen(!isOpen);
+  const toggleAuthMode = () => setIsSignup(!isSignup);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAuthSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError('');
+
+    const endpoint = isSignup ? '/api/signup' : '/api/login';
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+      ...(isSignup && { name: formData.name })
+    };
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || 'Something went wrong');
+        return;
+      }
+
+      // Save token in localStorage
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
+
+      // Redirect to dashboard
+      router.push('/dashboard');
+    } catch (err) {
+      console.error('Error:', err);
+      setError('Something went wrong');
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#1e3c72] via-[#2a5298] to-[#a1c4fd] px-4">
+      <h1 className="text-5xl font-extrabold text-white mb-6 drop-shadow-lg">
+        Welcome to My App
+      </h1>
+      <button
+        onClick={toggleModal}
+        className="cursor-pointer px-8 py-3 bg-white text-blue-700 font-semibold rounded-full shadow-lg hover:scale-105 transition-all duration-300"
+      >
+        Get Started
+      </button>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-20">
+          <div className="bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl w-full max-w-md p-8 relative border border-white/30">
+            {/* Close Button */}
+            <button
+              className="cursor-pointer absolute top-4 right-4 text-white hover:text-gray-200 text-2xl"
+              onClick={toggleModal}
+            >
+              &times;
+            </button>
+
+            <h2 className="text-3xl font-bold mb-6 text-center text-white">
+              {isSignup ? 'Sign Up' : 'Login'}
+            </h2>
+
+            <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
+              {isSignup && (
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Full Name"
+                  className="bg-white/40 text-black placeholder-gray-700 p-3 rounded-lg focus:outline-none"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              )}
+              <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                className="bg-white/40 text-black placeholder-gray-700 p-3 rounded-lg focus:outline-none"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                className="bg-white/40 text-black placeholder-gray-700 p-3 rounded-lg focus:outline-none"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="submit"
+                className="cursor-pointer bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+              >
+                {isSignup ? 'Create Account' : 'Login'}
+              </button>
+            </form>
+
+            {error && <p className="text-red-300 mt-4 text-center">{error}</p>}
+
+            <div className="flex items-center my-5">
+              <div className="flex-grow h-px bg-white/30" />
+              <span className="mx-3 text-white text-sm">OR</span>
+              <div className="flex-grow h-px bg-white/30" />
+            </div>
+
+            {/* Social Buttons */}
+            <div className="flex flex-col gap-3">
+              <button className="cursor-pointer flex items-center justify-center gap-3 bg-white/80 text-black py-2 rounded-lg hover:bg-white transition font-medium">
+                <Image src="/google-icon.svg" alt="Google" width={20} height={20} />
+                <span>Continue with Google</span>
+              </button>
+              <button className="cursor-pointer flex items-center justify-center gap-3 bg-black text-white py-2 rounded-lg hover:bg-gray-900 transition font-medium">
+                <Image src="/github-icon.svg" alt="GitHub" width={20} height={20} />
+                <span>Continue with GitHub</span>
+              </button>
+            </div>
+
+            {/* Toggle Auth Mode */}
+            <p className="text-center text-sm text-white mt-6">
+              {isSignup ? 'Already have an account?' : "Don't have an account?"}{' '}
+              <button onClick={toggleAuthMode} className="cursor-pointer text-blue-200 font-semibold underline">
+                {isSignup ? 'Login' : 'Sign Up'}
+              </button>
+            </p>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
     </div>
   );
 }
