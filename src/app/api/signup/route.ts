@@ -31,8 +31,12 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ message: 'User created successfully', user: { id: user.id, email: user.email } }, { status: 201 });
-  } catch (error: any) {
-    console.error('[SIGNUP_ERROR]', error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('[SIGNUP_ERROR]', error.message);
+    } else {
+      console.error('[SIGNUP_ERROR]', error);
+    }
     return NextResponse.json({ message: 'Something went wrong' }, { status: 500 });
   }
 }
