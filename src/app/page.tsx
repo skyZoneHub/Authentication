@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { signIn } from 'next-auth/react';
 
 export default function HomePage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,38 +22,48 @@ export default function HomePage() {
     e.preventDefault();
     setError('');
 
-    const endpoint = isSignup ? '/api/signup' : '/api/login';
-    const payload = {
-      email: formData.email,
-      password: formData.password,
-      ...(isSignup && { name: formData.name })
-    };
+    if (isSignup) {
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
 
-    try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.message || 'Signup failed');
+          return;
+        }
+
+        alert('Signup successful! Please log in.');
+        setIsSignup(false);
+        setFormData({ email: '', password: '', name: '' });
+      } catch (err) {
+        console.error(err);
+        setError('Something went wrong');
+      }
+    } else {
+      const res = await signIn('credentials', {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || 'Something went wrong');
-        return;
+      if (res?.error) {
+        setError('Invalid credentials');
+      } else {
+        router.push('/dashboard');
       }
-
-      // Save token in localStorage
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-      }
-
-      // Redirect to dashboard
-      router.push('/dashboard');
-    } catch (err) {
-      console.error('Error:', err);
-      setError('Something went wrong');
     }
+  };
+
+  const handleOAuth = (provider: 'google' | 'github') => {
+    signIn(provider, { callbackUrl: '/dashboard' });
   };
 
   return (
@@ -70,7 +81,6 @@ export default function HomePage() {
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-20">
           <div className="bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl w-full max-w-md p-8 relative border border-white/30">
-            {/* Close Button */}
             <button
               className="cursor-pointer absolute top-4 right-4 text-white hover:text-gray-200 text-2xl"
               onClick={toggleModal}
@@ -128,19 +138,23 @@ export default function HomePage() {
               <div className="flex-grow h-px bg-white/30" />
             </div>
 
-            {/* Social Buttons */}
             <div className="flex flex-col gap-3">
-              <button className="cursor-pointer flex items-center justify-center gap-3 bg-white/80 text-black py-2 rounded-lg hover:bg-white transition font-medium">
+              <button
+                className="cursor-pointer flex items-center justify-center gap-3 bg-white/80 text-black py-2 rounded-lg hover:bg-white transition font-medium"
+                onClick={() => handleOAuth('google')}
+              >
                 <Image src="/google-icon.svg" alt="Google" width={20} height={20} />
                 <span>Continue with Google</span>
               </button>
-              <button className="cursor-pointer flex items-center justify-center gap-3 bg-black text-white py-2 rounded-lg hover:bg-gray-900 transition font-medium">
+              <button
+                className="cursor-pointer flex items-center justify-center gap-3 bg-black text-white py-2 rounded-lg hover:bg-gray-900 transition font-medium"
+                onClick={() => handleOAuth('github')}
+              >
                 <Image src="/github-icon.svg" alt="GitHub" width={20} height={20} />
                 <span>Continue with GitHub</span>
               </button>
             </div>
 
-            {/* Toggle Auth Mode */}
             <p className="text-center text-sm text-white mt-6">
               {isSignup ? 'Already have an account?' : "Don't have an account?"}{' '}
               <button onClick={toggleAuthMode} className="cursor-pointer text-blue-200 font-semibold underline">

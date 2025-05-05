@@ -159,11 +159,12 @@ const config = {
     "db"
   ],
   "activeProvider": "mysql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "mysql://root:wEGFSkoGjGuPsnNhTIKRJgnGKqsgqBxd@tramway.proxy.rlwy.net:26716/railway"
+        "value": null
       }
     }
   },

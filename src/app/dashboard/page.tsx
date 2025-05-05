@@ -1,11 +1,18 @@
-'use client';
-
+// src/app/dashboard/page.tsx
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
 import Image from 'next/image';
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect('/');
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-100">
-      
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md hidden md:flex flex-col justify-between">
         <div>
@@ -33,29 +40,26 @@ export default function DashboardPage() {
       <div className="flex-1">
         {/* Topbar */}
         <header className="flex justify-between items-center bg-white px-6 py-4 shadow">
-         {/* Centered search input */}
-        <div className="flex-1 flex justify-center">
-          <div className="w-full max-w-md">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+          <div className="flex-1 flex justify-center">
+            <div className="w-full max-w-md">
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              />
+            </div>
+          </div>
+
+          <div className="ml-auto pl-4">
+            <Image
+              src="/profile.png"
+              alt="Profile"
+              width={40}
+              height={40}
+              className="rounded-full object-cover"
             />
           </div>
-        </div>
-                  
-        {/* Profile image right-aligned */}
-        <div className="ml-auto pl-4">
-          <Image
-            src=""
-            alt="Profile"
-            width={40}
-            height={40}
-            className="rounded-full object-cover"
-          />
-        </div>
-      </header>
-
+        </header>
 
         {/* Dashboard Cards */}
         <main className="p-6">
