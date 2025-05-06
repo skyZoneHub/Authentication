@@ -55,7 +55,7 @@ export default function HomePage() {
       });
 
       if (res?.error) {
-        setError('Invalid credentials');
+        setError('Incorrect email or password');
       } else {
         router.push('/dashboard');
       }

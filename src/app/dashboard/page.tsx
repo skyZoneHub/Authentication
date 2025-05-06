@@ -16,7 +16,7 @@ export default async function DashboardPage() {
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md hidden md:flex flex-col justify-between">
         <div>
-          <div className="p-6 text-xl font-bold text-center text-gray-800">My App</div>
+          <div className="p-6 text-xl font-bold text-center text-gray-900">Dummy Dashboard</div>
           <nav className="flex flex-col space-y-2 px-4">
             {['Dashboard', 'Projects', 'Tasks', 'Notes', 'Settings'].map((item) => (
               <a
@@ -52,7 +52,7 @@ export default async function DashboardPage() {
 
           <div className="ml-auto pl-4">
             <Image
-              src="https://via.placeholder.com/40"
+              src="/s.avif"
               alt="Profile"
               width={40}
               height={40}
