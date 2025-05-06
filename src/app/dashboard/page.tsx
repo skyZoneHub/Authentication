@@ -52,7 +52,7 @@ export default async function DashboardPage() {
 
           <div className="ml-auto pl-4">
             <Image
-              src="/profile.png"
+              src="https://via.placeholder.com/40"
               alt="Profile"
               width={40}
               height={40}
