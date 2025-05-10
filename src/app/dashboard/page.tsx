@@ -1,85 +1,87 @@
-// src/app/dashboard/page.tsx
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import Image from 'next/image';
+'use client';
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+import { useState } from 'react';
+import DashboardHome from './components/DashboardHome';
+import MyTeamSection from './components/MyTeamSection';
+import MyProjectsSection from './components/MyProjectsSection';
+import SubmitFilesSection from './components/SubmitFilesSection';
+import FeedbackSection from './components/FeedbackSection';
+import SettingsSection from './components/SettingsSection';
 
-  if (!session) {
-    redirect('/');
+export default function DashboardPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [selectedPage, setSelectedPage] = useState('dashboard');
+
+  interface HandleSidebarClickProps {
+    (page: string): void;
   }
 
+  const handleSidebarClick: HandleSidebarClickProps = (page) => {
+    setSelectedPage(page);
+    setSidebarOpen(false);
+  };
+
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen overflow-hidden bg-gray-900 text-white">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md hidden md:flex flex-col justify-between">
-        <div>
-          <div className="p-6 text-xl font-bold text-center text-gray-900">Dummy Dashboard</div>
-          <nav className="flex flex-col space-y-2 px-4">
-            {['Dashboard', 'Projects', 'Tasks', 'Notes', 'Settings'].map((item) => (
-              <a
-                key={item}
-                href="#"
-                className="text-gray-700 font-medium py-2 px-3 rounded hover:bg-gray-100"
-              >
-                {item}
-              </a>
-            ))}
-          </nav>
+      <aside className={`fixed z-40 md:static w-64 bg-gray-800 p-4 h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="mb-6">
+          <div className="text-2xl font-bold">Welcome, User 👋</div>
         </div>
-        <div className="p-4">
-          <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center text-sm font-bold">
-            N
-          </div>
+
+        <div className="md:hidden flex justify-end mb-4">
+          <button onClick={() => setSidebarOpen(false)} className="text-xl">✖</button>
+        </div>
+
+        <nav className="space-y-4">
+          <button onClick={() => handleSidebarClick('dashboard')} className="flex items-center gap-2 hover:text-blue-400">🏠 Dashboard</button>
+          <button onClick={() => handleSidebarClick('myProjects')} className="flex items-center gap-2 hover:text-blue-400">📄 My Projects</button>
+          <button onClick={() => handleSidebarClick('submitFiles')} className="flex items-center gap-2 hover:text-blue-400">📤 Submit Files</button>
+          <button onClick={() => handleSidebarClick('myTeam')} className="flex items-center gap-2 hover:text-blue-400">👥 My Team</button>
+          <button onClick={() => handleSidebarClick('feedback')} className="flex items-center gap-2 hover:text-blue-400">💬 Feedback</button>
+          <button onClick={() => handleSidebarClick('settings')} className="flex items-center gap-2 hover:text-blue-400" >⚙️ Settings</button>
+        </nav>
+
+        <div className="absolute bottom-4 left-4">
+          <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">U</div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1">
-        {/* Topbar */}
-        <header className="flex justify-between items-center bg-white px-6 py-4 shadow">
-          <div className="flex-1 flex justify-center">
-            <div className="w-full max-w-md">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-              />
-            </div>
-          </div>
+      {/* Overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black opacity-50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
 
-          <div className="ml-auto pl-4">
-            <Image
-              src="/s.avif"
-              alt="Profile"
-              width={40}
-              height={40}
-              className="rounded-full object-cover"
-            />
+      {/* Main Content */}
+      <div className="flex flex-col flex-1 overflow-auto">
+        {/* Topbar */}
+        <header className="bg-gray-800 px-4 py-3 flex justify-between items-center md:px-6">
+          <button className="md:hidden text-xl" onClick={() => setSidebarOpen(true)}>☰</button>
+          <div className="flex items-center gap-4 ml-auto relative">
+            <span className="text-xl cursor-pointer">🔔</span>
+            <div className="relative">
+              <button onClick={() => setProfileOpen(!profileOpen)} className="bg-black text-white px-3 py-1 rounded-full flex items-center">My Profile</button>
+              {profileOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-gray-700 rounded-md shadow-lg z-50">
+                  <a href="#" className="block px-4 py-2 text-sm hover:bg-gray-600">View Profile</a>
+                  <a href="#" className="block px-4 py-2 text-sm text-red-400 hover:bg-gray-600">Logout</a>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
-        {/* Dashboard Cards */}
-        <main className="p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card title="Projects" icon="📁" />
-            <Card title="Tasks" icon="📝" />
-            <Card title="Notes" icon="🗒️" />
-            <Card title="Settings" icon="⚙️" />
-          </div>
+        {/* Main Content Section */}
+        <main className="p-4 md:p-6">
+          {selectedPage === 'dashboard' && <DashboardHome />}
+          {selectedPage === 'myTeam' && <MyTeamSection />}
+          {selectedPage === 'myProjects' && <MyProjectsSection />}
+          {selectedPage === 'submitFiles' && <SubmitFilesSection />}
+          {selectedPage === 'feedback' && <FeedbackSection />}
+          {selectedPage === 'settings' && <SettingsSection />}
         </main>
       </div>
-    </div>
-  );
-}
-
-function Card({ title, icon }: { title: string; icon: string }) {
-  return (
-    <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-all text-center">
-      <div className="text-4xl mb-4">{icon}</div>
-      <div className="text-lg font-semibold text-gray-800">{title}</div>
     </div>
   );
 }
