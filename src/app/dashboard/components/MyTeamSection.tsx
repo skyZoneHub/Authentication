@@ -160,16 +160,20 @@ export default function MyTeamSection() {
               className="w-full mb-4 px-3 py-2 bg-gray-800 text-white border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="" disabled>Select Role</option>
-              <option value="Developer">Frontend Developer</option>
-              <option value="Designer">Backend Developer</option>
-              <option value="Manager">Full Stack Developer</option>
-              <option value="QA">MERN Stack Developer</option>
-              <option value="DevOps">DevOps Specialist</option>
+              <option value="Developer">Developer</option>
+              <option value="Designer">Designer</option>
+              <option value="Manager">Manager</option>
+              <option value="DevOps">DevOps</option>
               <option value="Data Scientist">Data Scientist</option>
-              <option value="Data Scientist">Data Analytics</option>
-              <option value="Data Scientist"> AI Engineer</option>
-              <option value="Data Scientist"> Prompt Engineer</option>
-              <option value="Product Manager">Cloud Engineer</option>
+              <option value="Data Analytics">Data Analytics</option>
+              <option value="AI Engineer"> AI Engineer</option>
+              <option value="Prompt Engineer"> Prompt Engineer</option>
+              <option value="Cloud Engineer">Cloud Engineer</option>
+              <option value="Product Manager">Product Manager</option>
+              <option value="Frontend Developer">Frontend Developer</option>
+              <option value="Backend Developer">Backend Developer</option>
+              <option value="Full Stack Developer">Full Stack Developer</option>
+              <option value="MERN Stack Developer">MERN Stack Developer</option>
               {/* Add other roles here */}
             </select>
 

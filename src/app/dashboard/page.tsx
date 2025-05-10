@@ -25,11 +25,10 @@ export default function DashboardPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-gray-900 text-white">
       {/* Sidebar */}
-      <aside className={`fixed z-40 md:static w-64 bg-gray-800 p-4 h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        <div className="mb-6">
-          <div className="text-2xl font-bold">Welcome, User 👋</div>
+      <aside className={`fixed z-40 md:static w-64 bg-gray-800 shadow-2xs p-4 h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 shadow-2xl md:shadow-2xl`}>
+        <div className="mb-6 ">
+          <div className=" text-2xl font-bold">Welcome, User 👋</div>
         </div>
-
         <div className="md:hidden flex justify-end mb-4">
           <button onClick={() => setSidebarOpen(false)} className="text-xl">✖</button>
         </div>
@@ -56,7 +55,7 @@ export default function DashboardPage() {
       {/* Main Content */}
       <div className="flex flex-col flex-1 overflow-auto">
         {/* Topbar */}
-        <header className="bg-gray-800 px-4 py-3 flex justify-between items-center md:px-6">
+        <header className="sticky top-0 z-50 bg-gray-800 px-4 py-3 flex justify-between items-center md:px-6 shadow-md">
           <button className="md:hidden text-xl" onClick={() => setSidebarOpen(true)}>☰</button>
           <div className="flex items-center gap-4 ml-auto relative">
             <span className="text-xl cursor-pointer">🔔</span>

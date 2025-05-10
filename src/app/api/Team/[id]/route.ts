@@ -1,31 +1,56 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { TeamMemberData } from '@/types/TeamTypes';
+import { NextRequest } from 'next/server';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const body = await req.json();
+// ✅ PUT (Update team member)
+export async function PUT(req: NextRequest) {
+  const url = new URL(req.url);
+  const id = url.pathname.split('/').pop(); // Extract ID from URL
+
+  if (!id) {
+    return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
+  }
+
+  const body: TeamMemberData = await req.json();
   const { name, email, role } = body;
 
   try {
-    const { id } = await params; // Yeh sahi tareeka hai
-
     const updated = await prisma.teamMember.update({
-      where: { id: Number(id) }, // Directly id ko use karo
+      where: { id: Number(id) },
       data: { name, email, role },
     });
+
     return NextResponse.json(updated);
-  } catch {
-    return NextResponse.json({ error: 'Member not found or update failed' }, { status: 500 });
+  } catch (error) {
+    console.error('Update error:', error);
+    return NextResponse.json(
+      { error: 'Member not found or update failed' },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+// ✅ DELETE (Delete team member)
+export async function DELETE(req: NextRequest) {
+  const url = new URL(req.url);
+  const id = url.pathname.split('/').pop(); // Extract ID from URL
+
+  if (!id) {
+    return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
+  }
+
   try {
-    const { id } = await params; // Yeh sahi tareeka hai
     const deleted = await prisma.teamMember.delete({
-      where: { id: Number(id) }, // Directly id ko use karo
+      where: { id: Number(id) },
     });
+
     return NextResponse.json(deleted);
-  } catch {
-    return NextResponse.json({ error: 'Member not found or delete failed' }, { status: 500 });
+  } catch (error) {
+    console.error('Delete error:', error);
+    return NextResponse.json(
+      { error: 'Member not found or delete failed' },
+      { status: 500 }
+    );
   }
 }

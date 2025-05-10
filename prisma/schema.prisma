@@ -42,3 +42,4 @@ model TeamMember {
   addedBy Int
   user    User     @relation("UserTeamMembers", fields: [addedBy], references: [id])
 }
+  
